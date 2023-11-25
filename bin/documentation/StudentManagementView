@@ -1,0 +1,749 @@
+package view;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.MatteBorder;
+import javax.swing.table.DefaultTableModel;
+
+import controller.Controller;
+import model.Province;
+import model.Student;
+import model.StudentMangement;
+
+public class NView extends JFrame {
+
+	private static final long serialVersionUID = 1L;
+	private StudentMangement list;
+	private JTable table;
+	private JTextField textField_ID;
+	private JTextField textField_Name;
+	private JTextField textField_Date;
+	private JTextField textField_Sub1;
+	private JTextField textField_Sub2;
+	private JTextField textField_Sub3;
+	private DefaultTableModel table_model;
+	private JCheckBox cb_Male;
+	private JCheckBox cb_Female;
+	private JButton btn_Add;
+	private JButton btn_Update;
+	private JButton btn_Save;
+	private JButton btn_Delete;
+	private JButton btn_SortFromLowestToHighest;
+	private JButton btn_SortFromHighestToLowest;
+	private ButtonGroup bg_Gender;
+	private JTextField textField_StudentID_Search;
+	private JButton btn_Search;
+	private JComboBox<String> comboBox_Province_Search;
+	private JComboBox<String> comboBox_Province;
+	private ArrayList<Province> list_Province;
+	private Controller listener = new Controller(this);
+	private JButton btn_Show;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			new NView("Student Management");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public NView(String name) {
+		super(name);
+		initialize();
+		this.setVisible(true);
+
+	}
+
+	/**
+	 * Initialize the contents of the this.
+	 */
+
+//	 public void setBounds(int x, int y, int width, int height) {
+//	        reshape(x, y, width, height);
+//	    }
+	private void initialize() {
+		this.getContentPane().setLayout(null);
+		this.setBounds(100, 100, 815, 688);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setResizable(false);
+
+		this.list = new StudentMangement();
+		this.table_model = new DefaultTableModel();
+
+		JMenuBar menuBar = new JMenuBar();
+		this.setJMenuBar(menuBar);
+
+		JMenu menu_file = new JMenu("File");
+		menu_file.setBackground(new Color(255, 128, 255));
+		menu_file.setFont(new Font("Segoe UI Black", Font.BOLD, 14));
+		menuBar.add(menu_file);
+
+		JMenuItem menu_open = new JMenuItem("Open");
+		menu_open.setHorizontalAlignment(SwingConstants.LEFT);
+		menu_open.addActionListener(listener);
+		menu_open.setActionCommand("OpenFile");
+		menu_file.add(menu_open);
+
+		JSeparator separator = new JSeparator();
+		menu_file.add(separator);
+
+		JMenuItem menuitem_save = new JMenuItem("Save");
+		menuitem_save.setHorizontalAlignment(SwingConstants.LEFT);
+		menuitem_save.addActionListener(listener);
+		menuitem_save.setActionCommand("SaveFile");
+		menu_file.add(menuitem_save);
+
+		JMenuItem menuitem_exit = new JMenuItem("Exit");
+		menuitem_exit.setHorizontalAlignment(SwingConstants.LEFT);
+		menuitem_exit.setForeground(Color.red);
+		menuitem_exit.addActionListener(listener);
+		menuitem_exit.setActionCommand("Exit");
+		menu_file.add(menuitem_exit);
+
+		JMenu menu_about = new JMenu("About");
+		menu_about.setFont(new Font("Segoe UI Black", Font.PLAIN, 14));
+		menuBar.add(menu_about);
+
+		JMenuItem menuitem_about = new JMenuItem("ABOUT ME");
+		menuitem_about.setHorizontalAlignment(SwingConstants.TRAILING);
+		menuitem_about.setActionCommand("About");
+		menuitem_about.setForeground(Color.blue);
+		menuitem_about.addActionListener(listener);
+		menu_about.add(menuitem_about);
+
+		JLabel lb_Province_Search = new JLabel("Quê Quán");
+		lb_Province_Search.setFont(new Font("Tahoma", Font.BOLD, 16));
+		lb_Province_Search.setBounds(10, 11, 83, 25);
+		this.getContentPane().add(lb_Province_Search);
+
+		JSeparator separator_1 = new JSeparator();
+		separator_1.setBounds(678, 30, -678, 2);
+		this.getContentPane().add(separator_1);
+
+		JSeparator separator_2 = new JSeparator();
+		separator_2.setBounds(10, 44, 659, -8);
+		this.getContentPane().add(separator_2);
+
+		JSeparator separator_3 = new JSeparator();
+		separator_3.setBounds(0, 57, 833, 2);
+		this.getContentPane().add(separator_3);
+
+		comboBox_Province_Search = new JComboBox<String>();
+		comboBox_Province_Search.setBounds(103, 11, 170, 35);
+		list_Province = Province.getListProvinces();
+		for (Province name : list_Province) {
+			comboBox_Province_Search.addItem(name.getProvince_name());
+		}
+
+		this.getContentPane().add(comboBox_Province_Search);
+
+		JLabel lb_Student_Search = new JLabel("Mã Thí Sinh");
+		lb_Student_Search.setFont(new Font("Tahoma", Font.BOLD, 16));
+		lb_Student_Search.setBounds(297, 11, 99, 25);
+		this.getContentPane().add(lb_Student_Search);
+
+		textField_StudentID_Search = new JTextField();
+		textField_StudentID_Search.setBounds(406, 11, 141, 35);
+		this.getContentPane().add(textField_StudentID_Search);
+
+		btn_Search = new JButton("Tìm kiếm");
+		btn_Search.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btn_Search.addActionListener(listener);
+		btn_Search.setActionCommand("Search");
+		btn_Search.setBounds(582, 12, 99, 20);
+		this.getContentPane().add(btn_Search);
+
+		JButton btn_CancelSearch = new JButton("Hủy tìm");
+		btn_CancelSearch.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btn_CancelSearch.setBounds(699, 12, 83, 20);
+		btn_CancelSearch.setActionCommand("CancelSearch");
+		btn_CancelSearch.addActionListener(listener);
+		this.getContentPane().add(btn_CancelSearch);
+
+		JLabel lb_StudentList = new JLabel("DANH SÁCH THÍ SINH ");
+		lb_StudentList.setFont(new Font("Yu Mincho", Font.PLAIN, 17));
+		lb_StudentList.setBounds(10, 62, 220, 35);
+		this.getContentPane().add(lb_StudentList);
+
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setViewportBorder(new MatteBorder(1, 1, 1, 1, (Color) new Color(0, 0, 0)));
+		scrollPane.setBounds(20, 106, 762, 236);
+		this.getContentPane().add(scrollPane);
+
+		table = new JTable();
+		table.setRowHeight(26);
+		table.setGridColor(Color.blue);
+		table.setFont(new Font("Tahoma", Font.PLAIN, 18));
+
+		String[] cols = new String[] { "Mã thí sinh", "Họ và tên", "Quê quán", "Ngày sinh", "Giới tính", "Môn 1",
+				"Môn 2", "Môn 3" };
+		DefaultTableModel table_model1 = new DefaultTableModel(cols, 0);
+		table.setModel(table_model1);
+		scrollPane.setViewportView(table);
+
+		JLabel lb_StudentInfor = new JLabel("THÔNG TIN THÍ SINH");
+		lb_StudentInfor.setFont(new Font("Yu Mincho", Font.PLAIN, 17));
+		lb_StudentInfor.setBounds(10, 345, 200, 44);
+		this.getContentPane().add(lb_StudentInfor);
+
+		JLabel lb_StudentID = new JLabel("Mã thí sinh");
+		lb_StudentID.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lb_StudentID.setBounds(10, 400, 83, 25);
+		this.getContentPane().add(lb_StudentID);
+
+		JLabel lb_Name = new JLabel("Họ và tên");
+		lb_Name.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lb_Name.setBounds(10, 450, 83, 36);
+		this.getContentPane().add(lb_Name);
+
+		JLabel lb_Province = new JLabel("Quê quán");
+		lb_Province.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lb_Province.setBounds(10, 507, 83, 35);
+		this.getContentPane().add(lb_Province);
+
+		JLabel lb_Sub1 = new JLabel("Môn 1");
+		lb_Sub1.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lb_Sub1.setBounds(306, 403, 57, 21);
+		this.getContentPane().add(lb_Sub1);
+
+		JLabel lb_Sub2 = new JLabel("Môn 2");
+		lb_Sub2.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lb_Sub2.setBounds(306, 453, 57, 25);
+		this.getContentPane().add(lb_Sub2);
+
+		JLabel lb_Sub3 = new JLabel("Môn 3");
+		lb_Sub3.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lb_Sub3.setBounds(306, 510, 57, 35);
+		this.getContentPane().add(lb_Sub3);
+
+		JLabel lb_Date = new JLabel("Ngày sinh");
+		lb_Date.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lb_Date.setBounds(10, 571, 83, 25);
+		this.getContentPane().add(lb_Date);
+
+		textField_ID = new JTextField();
+		textField_ID.setBounds(103, 401, 162, 33);
+		this.getContentPane().add(textField_ID);
+		textField_ID.setColumns(10);
+
+		textField_Name = new JTextField();
+		textField_Name.setBounds(103, 453, 162, 35);
+		this.getContentPane().add(textField_Name);
+		textField_Name.setColumns(10);
+
+		textField_Date = new JTextField();
+		textField_Date.setBounds(103, 571, 162, 34);
+		this.getContentPane().add(textField_Date);
+		textField_Date.setColumns(10);
+
+		textField_Sub1 = new JTextField();
+		textField_Sub1.setBounds(373, 401, 86, 33);
+		this.getContentPane().add(textField_Sub1);
+		textField_Sub1.setColumns(10);
+
+		JLabel lb_Gender = new JLabel("Giới tính");
+		lb_Gender.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lb_Gender.setBounds(306, 570, 67, 35);
+		this.getContentPane().add(lb_Gender);
+
+		cb_Male = new JCheckBox("Nam");
+		cb_Male.setBounds(380, 576, 57, 23);
+		this.getContentPane().add(cb_Male);
+
+		cb_Female = new JCheckBox("Nữ");
+		cb_Female.setBounds(441, 576, 57, 23);
+		this.getContentPane().add(cb_Female);
+
+		bg_Gender = new ButtonGroup();
+		bg_Gender.add(cb_Male);
+		bg_Gender.add(cb_Female);
+
+		textField_Sub2 = new JTextField();
+		textField_Sub2.setColumns(10);
+		textField_Sub2.setBounds(373, 453, 86, 31);
+		this.getContentPane().add(textField_Sub2);
+
+		textField_Sub3 = new JTextField();
+		textField_Sub3.setColumns(10);
+		textField_Sub3.setBounds(373, 512, 86, 31);
+		this.getContentPane().add(textField_Sub3);
+
+		btn_Add = new JButton("THÊM");
+		btn_Add.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btn_Add.setBounds(540, 383, 108, 23);
+		btn_Add.addActionListener(listener);
+		btn_Add.setActionCommand("Add");
+		this.getContentPane().add(btn_Add);
+
+		btn_Show = new JButton("HIỂN THỊ");
+		btn_Show.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btn_Show.setBounds(540, 545, 108, 23);
+		btn_Show.addActionListener(listener);
+		btn_Show.setActionCommand("Show");
+		this.getContentPane().add(btn_Show);
+
+		btn_Update = new JButton("CẬP NHẬT");
+		btn_Update.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btn_Update.setBounds(540, 439, 108, 23);
+		btn_Update.addActionListener(listener);
+		btn_Update.setActionCommand("Update");
+		this.getContentPane().add(btn_Update);
+
+		comboBox_Province = new JComboBox<String>();
+		comboBox_Province.setBounds(103, 512, 162, 35);
+		for (Province name : list_Province) {
+			comboBox_Province.addItem(name.getProvince_name());
+		}
+		this.getContentPane().add(comboBox_Province);
+
+		btn_Save = new JButton("LƯU");
+		btn_Save.addActionListener(listener);
+		btn_Save.setActionCommand("Save");
+		btn_Save.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btn_Save.setBounds(667, 439, 108, 23);
+		this.getContentPane().add(btn_Save);
+
+		btn_Delete = new JButton("XOÁ BỎ");
+		btn_Delete.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btn_Delete.setBounds(667, 385, 108, 23);
+		btn_Delete.setActionCommand("Delete");
+		btn_Delete.addActionListener(listener);
+		this.getContentPane().add(btn_Delete);
+
+		btn_SortFromLowestToHighest = new JButton("ID ↑");
+		btn_SortFromLowestToHighest.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btn_SortFromLowestToHighest.setBounds(540, 495, 108, 23);
+		btn_SortFromLowestToHighest.addActionListener(listener);
+		btn_SortFromLowestToHighest.setActionCommand("SortFromLToH");
+		this.getContentPane().add(btn_SortFromLowestToHighest);
+
+		btn_SortFromHighestToLowest = new JButton("ID ↓");
+		btn_SortFromHighestToLowest.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btn_SortFromHighestToLowest.setBounds(666, 495, 108, 23);
+		btn_SortFromHighestToLowest.addActionListener(listener);
+		btn_SortFromHighestToLowest.setActionCommand("SortFromHToL");
+		this.getContentPane().add(btn_SortFromHighestToLowest);
+
+		JButton btn_Cancel = new JButton("HUỶ ĐIỀN");
+		btn_Cancel.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btn_Cancel.setActionCommand("Cancel");
+		btn_Cancel.addActionListener(listener);
+		btn_Cancel.setBounds(667, 545, 108, 23);
+		this.getContentPane().add(btn_Cancel);
+
+		JButton btn_ClerAll = new JButton("XÓA LIST");
+		btn_ClerAll.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		btn_ClerAll.setActionCommand("ClearAll");
+		btn_ClerAll.setBounds(606, 590, 104, 23);
+		btn_ClerAll.addActionListener(listener);
+		getContentPane().add(btn_ClerAll);
+	}
+
+	public void clearForm() {
+		this.textField_ID.setText("");
+		this.textField_Name.setText("");
+		this.textField_Date.setText("");
+		this.textField_Sub1.setText("");
+		this.textField_Sub2.setText("");
+		this.textField_Sub3.setText("");
+		this.bg_Gender.clearSelection();
+		this.comboBox_Province.setSelectedIndex(-1);
+
+	}
+
+	public StudentMangement getList() {
+		return list;
+	}
+
+	public void setList(StudentMangement list) {
+		this.list = list;
+	}
+
+	public void about() {
+		JOptionPane.showConfirmDialog(this, "Student Management version 2.0", "Massage", JOptionPane.DEFAULT_OPTION);
+	}
+
+	public void exit() {
+		int choice = JOptionPane.showConfirmDialog(this, "Are you sure ?", "Warning", JOptionPane.YES_NO_CANCEL_OPTION);
+		if (choice == JOptionPane.YES_OPTION) {
+			System.exit(0);
+		}
+	}
+
+	public void loadData() {
+		try {
+			ArrayList<Student> listNow = this.list.getList_students();
+			while (true) {
+				int rowCounts = table.getRowCount();
+				if (rowCounts == 0) {
+					break;
+				} else {
+					try {
+						table_model.removeRow(0);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			for (Student o : listNow) {
+				this.addStudentToTable(o);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void clearAll() {
+		while (true) {
+			int rowCounts = table.getRowCount();
+			if (rowCounts == 0) {
+				break;
+			} else {
+				try {
+					table_model.removeRow(0);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public void searchStudent() {
+		loadData();
+
+		int province = this.comboBox_Province_Search.getSelectedIndex();
+		String student_ID_Search = this.textField_StudentID_Search.getText();
+		Province province_Search = Province.getProvinceByID(province);
+		int rowCounts = table_model.getRowCount();
+
+		Set<Integer> IDoFnonStudent = new TreeSet<Integer>();
+
+		if (province > 0) {
+			for (int i = 0; i < rowCounts; i++) {
+				String studentid = table_model.getValueAt(i, 0) + "";
+				String provincename = table_model.getValueAt(i, 2) + "";
+				if (!provincename.equals(province_Search.getProvince_name())) {
+					IDoFnonStudent.add(Integer.valueOf(studentid));
+				}
+			}
+		}
+
+		if (student_ID_Search.length() > 0) {
+			for (int i = 0; i < rowCounts; i++) {
+				String studentid = table_model.getValueAt(i, 0) + "";
+				if (!studentid.equals(student_ID_Search)) {
+					IDoFnonStudent.add(Integer.valueOf(studentid));
+				}
+
+			}
+		}
+
+		for (Integer deleltedID : IDoFnonStudent) {
+			for (int i = 0; i < rowCounts; i++) {
+				String id = table_model.getValueAt(i, 0) + "";
+				if (deleltedID.equals(Integer.parseInt(id))) {
+					try {
+						table_model.removeRow(i);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					break;
+
+				}
+			}
+		}
+
+	}
+
+	@SuppressWarnings("deprecation")
+	public void addStudentToTable(Student student) {
+		Object[] data = new Object[] { student.getStudent_id() + "", student.getStudent_name() + "",
+				student.getProvince().getProvince_name() + "", (student.getBirthDate().getMonth()) + "/"
+
+						+ (student.getBirthDate().getDate()) + "/" + (student.getBirthDate().getYear())
+
+				, student.isGender() ? "Nam" : "Nữ", student.getSubject1() + "", student.getSubject2() + "",
+				student.getSubject3() + "" };
+		table_model = (DefaultTableModel) table.getModel();
+		((DefaultTableModel) table_model).addRow(data);
+
+	}
+
+	public Student getStudentForm() {
+		if ((textField_ID.getText().equalsIgnoreCase("") || textField_Name.getText().equalsIgnoreCase("")
+				|| textField_Date.getText().equalsIgnoreCase("") || textField_Sub1.getText().equalsIgnoreCase("")
+
+				|| textField_Sub2.getText().equalsIgnoreCase("") || textField_Sub3.getText().equalsIgnoreCase("")
+				|| !cb_Female.isSelected() || !cb_Male.isSelected())) {
+			return null;
+		} else {
+			int ID = Integer.valueOf(this.textField_ID.getText());
+			String name = this.textField_Name.getText();
+			int Province_ID = this.comboBox_Province.getSelectedIndex();
+			Province province = Province.getProvinceByID(Province_ID);
+			@SuppressWarnings("deprecation")
+			Date date = new Date(this.textField_Date.getText());
+			boolean gender = false;
+			if (this.cb_Male.isSelected()) {
+				gender = true;
+			} else if (this.cb_Female.isSelected()) {
+				gender = false;
+			}
+
+			float sub1 = Float.valueOf(this.textField_Sub1.getText());
+			float sub2 = Float.valueOf(this.textField_Sub2.getText());
+			float sub3 = Float.valueOf(this.textField_Sub3.getText());
+			Student ts = new Student(ID, name, province, date, gender, sub1, sub2, sub3);
+			return ts;
+		}
+
+	}
+
+	public void addStudent() {
+		try {
+			Student ts = getStudentForm();
+
+			if (ts == null) {
+				JOptionPane.showMessageDialog(this, "Cần nhập đủ dữ liệu!", "Empty", JOptionPane.WARNING_MESSAGE);
+				return;
+			} else if (this.list.hasStudent(ts)) {
+				JOptionPane.showMessageDialog(this, "Đã có ID trong danh sách", "Warning", JOptionPane.ERROR_MESSAGE);
+				return;
+			} else {
+				this.addStudentToTable(ts);
+				this.list.addToList(ts);
+			}
+			     
+			this.clearForm();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public Student getSelectingStudent() {
+		int rowSelected = table.getSelectedRow();
+
+		int ID = Integer.valueOf(table.getValueAt(rowSelected, 0) + "");
+		String name = table.getValueAt(rowSelected, 1) + "";
+		Province province = Province.getProvinceByName(table.getValueAt(rowSelected, 2) + "");
+		@SuppressWarnings("deprecation")
+		Date date = new Date(table.getValueAt(rowSelected, 3) + "");
+		String stringGender = table.getValueAt(rowSelected, 4) + "";
+		boolean gender = stringGender.equals("Nam");
+		float sub1 = Float.parseFloat(table.getValueAt(rowSelected, 5) + "");
+		float sub2 = Float.parseFloat(table.getValueAt(rowSelected, 6) + "");
+		float sub3 = Float.parseFloat(table.getValueAt(rowSelected, 7) + "");
+
+		Student student = new Student(ID, name, province, date, gender, sub1, sub2, sub3);
+
+		return student;
+	}
+
+	@SuppressWarnings("deprecation")
+	public void showStudentInformationSeledted() {
+		try {
+			Student student = getSelectingStudent();
+			this.textField_ID.setText(student.getStudent_id() + "");
+			this.textField_Name.setText(student.getStudent_name() + "");
+			if (student.isGender())
+				cb_Male.setSelected(true);
+			else {
+				cb_Female.setSelected(true);
+			}
+			this.textField_Sub1.setText(student.getSubject1() + "");
+			this.textField_Sub2.setText(student.getSubject2() + "");
+			this.textField_Sub3.setText(student.getSubject3() + "");
+			this.comboBox_Province.setSelectedItem(student.getProvince().getProvince_name());
+			this.textField_Date.setText((student.getBirthDate().getMonth() + 1) + "/"
+					+ (student.getBirthDate().getDate()) + "/" + (student.getBirthDate().getYear() + 1900) + "");
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Không có thí sinh để hiện thị", "Massage",
+					JOptionPane.WARNING_MESSAGE);
+		}
+
+	}
+
+	@SuppressWarnings("deprecation")
+	public void update(Student ts) {
+		if (!this.list.hasStudent(ts)) {
+			this.list.addToList(ts);
+			this.addStudent();
+		} else {
+			this.list.remove(ts);
+			this.list.addToList(ts);
+			int cols = table.getColumnCount();
+			for (int i = 0; i <= cols; i++) {
+				table_model.setValueAt(ts.getStudent_id() + "", i, 0);
+				table_model.setValueAt(ts.getStudent_name() + "", i, 1);
+				table_model.setValueAt(ts.getProvince().getProvince_name() + "", i, 2);
+				table_model.setValueAt(((ts.getBirthDate().getMonth() + 1) + "/" + ts.getBirthDate().getDate() + "/"
+						+ ts.getBirthDate().getYear() + 1900), i, 3);
+				String textGender = "";
+				if (ts.isGender()) {
+					textGender = "Nam";
+				} else {
+					textGender = "Nữ";
+				}
+				table_model.setValueAt(textGender, i, 4);
+				table_model.setValueAt(ts.getSubject1() + "", i, 5);
+				table_model.setValueAt(ts.getSubject2() + "", i, 6);
+				table_model.setValueAt(ts.getSubject3() + "", i, 7);
+				System.out.println(list.toString());
+			}
+			this.clearForm();
+		}
+	}
+
+	public void updateStudent() {
+		try {
+			Student st = getStudentForm();
+			update(st);
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Something went wrong!", "Massage", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	public void deleteStudent() {
+		try {
+			int rowSelected = table.getSelectedRow();
+
+			if (rowSelected != -1) {
+				int point = JOptionPane.showConfirmDialog(this, "Bạn có muốn xóa thí sinh này", "Warning",
+						JOptionPane.YES_NO_OPTION);
+
+				if (point == JOptionPane.YES_OPTION) {
+					Student student = getSelectingStudent();
+					this.list.remove(student);
+					table_model.removeRow(rowSelected);
+				}
+			} else {
+				JOptionPane.showMessageDialog(this, "Không còn ai để xoá", "Massage", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Something went wrong!", "Massage", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	public void sortScoreFromHighestToLowest() {
+		try {
+			this.list.sortScoreFromHighestToLowest();
+			loadData();
+		} catch (Exception e) {
+			JOptionPane.showConfirmDialog(this, "Danh sách trống", "Massage", JOptionPane.OK_OPTION);
+		}
+	}
+
+	public void sortScoreFromLowestToHighest() {
+		try {
+			this.list.sortScoreFromLowestToHighest();
+			loadData();
+		} catch (Exception e) {
+			JOptionPane.showConfirmDialog(this, "Danh sách trống", "Massage", JOptionPane.OK_OPTION);
+		}
+
+	}
+
+	public void saveFile(String path) {
+		try {
+			this.list.setFilename(path);
+			FileOutputStream fos = new FileOutputStream(path);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			for (Student ts : this.list.getList_students()) {
+				oos.writeObject(ts);
+			}
+			oos.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void saveFileOperation() {
+		try {
+			if (this.list.getFilename().length() > 0) {
+				saveFile(this.list.getFilename());
+			} else {
+				JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showSaveDialog(this);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					saveFile(file.getAbsolutePath());
+				}
+				loadData();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void openFile(File file) {
+		ArrayList<Student> ds = new ArrayList<Student>();
+		try {
+			this.list.setFilename(file.getAbsolutePath());
+			FileInputStream fis = new FileInputStream(file);
+			ObjectInputStream ois = new ObjectInputStream(fis);
+			Student ts = null;
+			while ((ts = (Student) ois.readObject()) != null) {
+				ds.add(ts);
+			}
+			ois.close();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+
+		}
+		this.list.setList_students(ds);
+	}
+
+	public void openFileOperation() {
+		try {
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showSaveDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				openFile(file);
+			}
+			loadData();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}

@@ -1,0 +1,70 @@
+package controller;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import view.NView;
+
+public class Controller implements ActionListener {
+	private NView view;
+
+	public Controller(NView view) {
+		this.view = view;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		String event = e.getActionCommand();
+		switch (event) {
+		case "Add":
+			this.view.getList().setChoice("Thêm");
+			this.view.addStudent();
+			break;
+		case "Save":
+			this.view.addStudent();
+			break;
+		case "Delete":
+			this.view.deleteStudent();
+			break;
+		case "Update":
+			this.view.updateStudent();
+			break;
+		case "Show":
+			this.view.showStudentInformationSeledted();
+			break;
+		case "Search":
+			this.view.searchStudent();
+			break;
+		case "CancelSearch":
+			this.view.loadData();
+			break;
+		case "Cancel":
+			this.view.clearForm();
+			break;
+		case "About":
+			this.view.about();
+			break;
+		case "Exit":
+			this.view.exit();
+			break;
+		case "SortFromHToL":
+			this.view.sortScoreFromHighestToLowest();
+			break;
+		case "SortFromLToH":
+			this.view.sortScoreFromLowestToHighest();
+			break;
+		case "SaveFile":
+			this.view.saveFileOperation();
+			break;
+		case "OpenFile":
+			this.view.openFileOperation();
+			break;
+		case "ClearAll":
+			this.view.clearAll();
+			break;
+		default:
+			throw new IllegalArgumentException("Unexpected value: " + event);
+		}
+
+	}
+
+}
